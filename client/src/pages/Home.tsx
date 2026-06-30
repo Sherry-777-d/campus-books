@@ -25,7 +25,7 @@ function SkeletonGrid() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div key={i} className="bg-white rounded-lg shadow-sm border border-slate-100 overflow-hidden">
           <div className="aspect-[3/4] skeleton" />
           <div className="p-3 space-y-2">
             <div className="h-4 skeleton w-3/4" />
@@ -126,13 +126,30 @@ export default function Home() {
     <div>
       {/* Hero 区域：只在首页无搜索时显示 */}
       {!currentSearch && (
-        <div className="text-center mb-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            📚 校园二手书交易平台
-          </h1>
-          <p className="text-gray-500 text-sm">
-            买到便宜好书，卖掉闲置教材
-          </p>
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 mb-10">
+          {/* 装饰性模糊圆 */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4 blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-rose-400/20 rounded-full translate-y-1/3 -translate-x-1/4 blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-amber-300/20 rounded-full -translate-x-1/2 -translate-y-1/2 blur-2xl" />
+
+          <div className="relative px-6 py-12 md:py-16 flex flex-col items-center text-center">
+            <span className="text-6xl md:text-7xl mb-4 animate-float">📚</span>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-3 tracking-tight">
+              校园二手书
+              <span className="block text-amber-200 mt-1">循环利用，知识传递</span>
+            </h1>
+            <p className="text-indigo-100 text-base md:text-lg max-w-md mb-6">
+              买到便宜好书，卖掉闲置教材。让每一本书都找到下一个主人。
+            </p>
+            {!isLoggedIn && (
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 font-semibold rounded-full hover:bg-indigo-50 transition-all shadow-lg shadow-black/10 no-underline active:scale-95"
+              >
+                立即开始 →
+              </Link>
+            )}
+          </div>
         </div>
       )}
 
@@ -151,8 +168,8 @@ export default function Home() {
               onClick={() => handleSearch(isActive ? "" : tag)}
               className={`px-3 py-1.5 text-xs rounded-full border transition-colors cursor-pointer ${
                 isActive
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-gray-600 border-gray-300 hover:border-blue-400 hover:text-blue-600"
+                  ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50"
               }`}
             >
               {tag}
@@ -162,7 +179,7 @@ export default function Home() {
         {currentSearch && (
           <button
             onClick={() => handleSearch("")}
-            className="px-3 py-1.5 text-xs rounded-full border border-gray-300 text-gray-400 hover:text-red-500 hover:border-red-300 transition-colors cursor-pointer"
+            className="px-3 py-1.5 text-xs rounded-full border border-slate-200 text-slate-400 hover:text-rose-500 hover:border-rose-300 transition-colors cursor-pointer"
           >
             清除筛选 ✕
           </button>
@@ -170,7 +187,7 @@ export default function Home() {
       </div>
 
       {currentSearch && (
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-sm text-slate-500 mb-4">
           搜索 "{currentSearch}" 结果：共 {pagination.total} 本
         </p>
         )}
@@ -181,24 +198,24 @@ export default function Home() {
       ) : books.length === 0 ? (
         <div className="flex flex-col items-center py-16">
           <p className="text-6xl mb-4">📭</p>
-          <p className="text-gray-500 text-lg mb-2">
+          <p className="text-slate-500 text-lg mb-2">
             {currentSearch ? "没有找到相关书籍" : "还没有人发布书籍"}
           </p>
-          <p className="text-gray-400 text-sm mb-6">
+          <p className="text-slate-400 text-sm mb-6">
             {currentSearch ? "试试其他关键词吧" : "成为第一个卖书的人！"}
           </p>
           {!currentSearch && (
             isLoggedIn ? (
               <Link
                 to="/publish"
-                className="px-6 py-2.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors no-underline"
+                className="px-6 py-2.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors no-underline active:scale-95"
               >
                 发布第一本书 →
               </Link>
             ) : (
               <Link
                 to="/register"
-                className="px-6 py-2.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors no-underline"
+                className="px-6 py-2.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors no-underline active:scale-95"
               >
                 注册并发布 →
               </Link>

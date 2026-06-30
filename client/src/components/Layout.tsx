@@ -4,7 +4,7 @@ import Navbar from "./Navbar";
 /** 页面布局壳：顶部导航 + 中间内容区 */
 export default function Layout() {
   return (
-    <div className="min-h-screen bg-stone-100">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50/80 via-white to-rose-50/30">
       <Navbar />
       <main className="max-w-6xl mx-auto px-4 py-6">
         <Outlet />

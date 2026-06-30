@@ -19,18 +19,18 @@ function ConfirmModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-lg shadow-xl p-6 mx-4 max-w-sm w-full">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-        <p className="text-sm text-gray-600 mb-6">{message}</p>
+        <h3 className="text-lg font-semibold text-slate-900 mb-2">{title}</h3>
+        <p className="text-sm text-slate-600 mb-6">{message}</p>
         <div className="flex gap-3 justify-end">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+            className="px-4 py-2 text-sm rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
           >
             取消
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 text-sm rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer"
+            className="px-4 py-2 text-sm rounded-md bg-rose-600 text-white hover:bg-rose-700 transition-colors cursor-pointer"
           >
             确认下架
           </button>
@@ -45,7 +45,7 @@ function SkeletonGrid() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div key={i} className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
           <div className="aspect-[3/4] skeleton" />
           <div className="p-3 space-y-2">
             <div className="h-4 skeleton w-3/4" />
@@ -105,14 +105,14 @@ export default function MyBooks() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">📦 我发布的书籍</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-slate-900">📦 我发布的书籍</h1>
+          <p className="text-slate-500 text-sm mt-1">
             共发布了 {books.length} 本书
           </p>
         </div>
         <Link
           to="/publish"
-          className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors no-underline"
+          className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 transition-colors no-underline"
         >
           + 发布新书
         </Link>
@@ -124,13 +124,13 @@ export default function MyBooks() {
       ) : books.length === 0 ? (
         <div className="flex flex-col items-center py-16">
           <p className="text-6xl mb-4">📭</p>
-          <p className="text-gray-500 text-lg mb-2">还没有发布过书籍</p>
-          <p className="text-gray-400 text-sm mb-6">
+          <p className="text-slate-500 text-lg mb-2">还没有发布过书籍</p>
+          <p className="text-slate-400 text-sm mb-6">
             有闲置的二手书吗？快来发布吧！
           </p>
           <Link
             to="/publish"
-            className="px-6 py-2.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors no-underline"
+            className="px-6 py-2.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors no-underline"
           >
             发布第一本书 →
           </Link>
@@ -140,20 +140,20 @@ export default function MyBooks() {
           {books.map((book) => (
             <div
               key={book.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200"
+              className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center gap-4 p-4">
                 {/* 缩略图 */}
                 <Link
                   to={`/books/${book.id}`}
-                  className="flex-shrink-0 w-16 h-20 bg-gray-100 rounded overflow-hidden no-underline"
+                  className="flex-shrink-0 w-16 h-20 bg-slate-100 rounded overflow-hidden no-underline"
                 >
                   {(() => {
                     const cover = book.images?.split(",").filter(Boolean)[0];
                     return cover ? (
                       <img src={cover} alt={book.title} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-300">
+                      <div className="w-full h-full flex items-center justify-center text-slate-300">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                             d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -168,19 +168,19 @@ export default function MyBooks() {
                   to={`/books/${book.id}`}
                   className="flex-1 min-w-0 no-underline"
                 >
-                  <h3 className="text-sm font-medium text-gray-900 truncate">
+                  <h3 className="text-sm font-medium text-slate-900 truncate">
                     {book.title}
                   </h3>
-                  <p className="text-xs text-gray-500 mt-0.5">{book.author}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{book.author}</p>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-base font-bold text-red-500">
+                    <span className="text-base font-bold text-rose-500">
                       ¥{book.price.toFixed(2)}
                     </span>
                     <span
                       className={`text-xs px-2 py-0.5 rounded-full ${
                         book.status === "在售"
                           ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-500"
+                          : "bg-slate-100 text-slate-500"
                       }`}
                     >
                       {book.status}
@@ -192,19 +192,19 @@ export default function MyBooks() {
                 <div className="flex flex-col gap-2 flex-shrink-0">
                   <button
                     onClick={() => navigate(`/books/${book.id}`)}
-                    className="px-3 py-1.5 text-xs border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+                    className="px-3 py-1.5 text-xs border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 transition-colors cursor-pointer"
                   >
                     查看
                   </button>
                   <button
                     onClick={() => navigate(`/books/${book.id}/edit`)}
-                    className="px-3 py-1.5 text-xs border border-blue-200 text-blue-600 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
+                    className="px-3 py-1.5 text-xs border border-indigo-200 text-indigo-600 rounded-md hover:bg-indigo-50 transition-colors cursor-pointer"
                   >
                     编辑
                   </button>
                   <button
                     onClick={() => setConfirmBookId(book.id)}
-                    className="px-3 py-1.5 text-xs border border-red-200 text-red-500 rounded-md hover:bg-red-50 transition-colors cursor-pointer"
+                    className="px-3 py-1.5 text-xs border border-rose-200 text-rose-500 rounded-md hover:bg-rose-50 transition-colors cursor-pointer"
                   >
                     下架
                   </button>

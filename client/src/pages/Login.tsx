@@ -35,38 +35,38 @@ export default function Login() {
 
   return (
     <div className="max-w-sm mx-auto mt-10">
-      <h1 className="text-2xl font-bold text-center mb-6 text-gray-900">
+      <h1 className="text-2xl font-bold text-center mb-6 text-slate-900">
         登录
       </h1>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-lg shadow-md border border-gray-200"
+        className="bg-white p-6 rounded-lg shadow-md border border-slate-200"
       >
         {error && (
-          <div className="mb-4 p-2.5 bg-red-50 text-red-600 text-sm rounded-md border border-red-200">
+          <div className="mb-4 p-2.5 bg-rose-50 text-rose-600 text-sm rounded-md border border-rose-200">
             {error}
           </div>
         )}
 
         <div className="mb-4">
-          <label className="block text-sm text-gray-700 mb-1">邮箱</label>
+          <label className="block text-sm text-slate-700 mb-1">邮箱</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow"
             placeholder="your@email.com"
           />
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm text-gray-700 mb-1">密码</label>
+          <label className="block text-sm text-slate-700 mb-1">密码</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+            className="w-full px-3 py-2.5 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow"
             placeholder="输入密码"
           />
         </div>
@@ -74,7 +74,7 @@ export default function Login() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full py-2.5 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors disabled:opacity-60 cursor-pointer flex items-center justify-center gap-2"
+          className="w-full py-2.5 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700 transition-colors disabled:opacity-60 cursor-pointer flex items-center justify-center gap-2"
         >
           {submitting && (
             <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -82,9 +82,9 @@ export default function Login() {
           {submitting ? "登录中..." : "登录"}
         </button>
 
-        <p className="text-center text-sm text-gray-500 mt-4">
+        <p className="text-center text-sm text-slate-500 mt-4">
           还没有账号？{" "}
-          <Link to="/register" className="text-blue-600 hover:underline">
+          <Link to="/register" className="text-indigo-600 hover:underline">
             去注册
           </Link>
         </p>

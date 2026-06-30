@@ -24,7 +24,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
-        className="px-3 py-1.5 text-sm rounded-md border border-gray-300 bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors cursor-pointer"
+        className="px-3 py-1.5 text-sm rounded-md border border-slate-300 bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
       >
         上一页
       </button>
@@ -32,7 +32,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
       {/* 页码 */}
       {pages.map((p, i) =>
         p === "..." ? (
-          <span key={`dots-${i}`} className="px-2 text-gray-400 text-sm">
+          <span key={`dots-${i}`} className="px-2 text-slate-400 text-sm">
             ...
           </span>
         ) : (
@@ -41,8 +41,8 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
             onClick={() => onPageChange(p)}
             className={`px-3 py-1.5 text-sm rounded-md border cursor-pointer transition-colors ${
               p === page
-                ? "bg-blue-600 text-white border-blue-600"
-                : "border-gray-300 bg-white hover:bg-gray-50"
+                ? "bg-indigo-600 text-white border-indigo-600"
+                : "border-slate-300 bg-white hover:bg-slate-50"
             }`}
           >
             {p}
@@ -54,7 +54,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
-        className="px-3 py-1.5 text-sm rounded-md border border-gray-300 bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors cursor-pointer"
+        className="px-3 py-1.5 text-sm rounded-md border border-slate-300 bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
       >
         下一页
       </button>

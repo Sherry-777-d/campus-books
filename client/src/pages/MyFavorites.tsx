@@ -11,7 +11,7 @@ function SkeletonGrid() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div key={i} className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
           <div className="aspect-[3/4] skeleton" />
           <div className="p-3 space-y-2">
             <div className="h-4 skeleton w-3/4" />
@@ -76,8 +76,8 @@ export default function MyFavorites() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">❤️ 我的心愿单</h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-slate-900">❤️ 我的心愿单</h1>
+        <p className="text-slate-500 text-sm mt-1">
           共收藏了 {pagination.total} 本书
         </p>
       </div>
@@ -88,13 +88,13 @@ export default function MyFavorites() {
       ) : books.length === 0 ? (
         <div className="flex flex-col items-center py-16">
           <p className="text-6xl mb-4">💔</p>
-          <p className="text-gray-500 text-lg mb-2">还没有收藏任何书籍</p>
-          <p className="text-gray-400 text-sm mb-6">
+          <p className="text-slate-500 text-lg mb-2">还没有收藏任何书籍</p>
+          <p className="text-slate-400 text-sm mb-6">
             去首页逛逛，遇到感兴趣的书就收藏起来吧！
           </p>
           <Link
             to="/"
-            className="px-6 py-2.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors no-underline"
+            className="px-6 py-2.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors no-underline"
           >
             去首页看看 →
           </Link>

@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 import type { Book } from "../types";
 
 const CONDITION_COLORS: Record<string, string> = {
-  "全新": "bg-green-100 text-green-700",
-  "几乎全新": "bg-blue-100 text-blue-700",
+  "全新": "bg-emerald-100 text-emerald-700",
+  "几乎全新": "bg-indigo-100 text-indigo-700",
   "有笔记": "bg-yellow-100 text-yellow-700",
-  "有破损": "bg-red-100 text-red-700",
+  "有破损": "bg-rose-100 text-rose-700",
 };
 
 interface Props {
@@ -39,11 +39,11 @@ export default function BookCard({
       {showFavorite && (
         <button
           onClick={handleFavoriteClick}
-          className={`absolute top-2 right-2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-all duration-200 border-none cursor-pointer ${
+          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md backdrop-blur-sm transition-all duration-200 border-none cursor-pointer ${
             isFavorited
-              ? "bg-red-50 text-red-500 hover:bg-red-100"
-              : "bg-white/80 text-gray-400 hover:text-red-400 hover:bg-white"
-          }`}
+              ? "bg-rose-50 text-rose-500 hover:bg-rose-100"
+              : "bg-white/80 text-slate-400 hover:text-rose-400 hover:bg-white"
+          } ${isFavorited ? "animate-heart-pop" : ""}`}
           title={isFavorited ? "取消收藏" : "收藏"}
         >
           <svg
@@ -64,10 +64,10 @@ export default function BookCard({
 
       <Link
         to={`/books/${book.id}`}
-        className="block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 no-underline"
+        className="block bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 no-underline"
       >
         {/* 封面图 */}
-        <div className="aspect-[3/4] bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden relative">
+        <div className="aspect-[3/4] bg-gradient-to-br from-indigo-100 to-violet-100 overflow-hidden relative">
           {hasImage ? (
             <img
               src={coverImage}
@@ -83,7 +83,7 @@ export default function BookCard({
           ) : null}
           {/* 无图片占位 */}
           <div
-            className={`w-full h-full flex flex-col items-center justify-center text-gray-300 ${
+            className={`w-full h-full flex flex-col items-center justify-center text-indigo-300 ${
               hasImage ? "hidden" : ""
             }`}
           >
@@ -106,19 +106,19 @@ export default function BookCard({
 
         {/* 信息区 */}
         <div className="p-3">
-          <h3 className="text-sm font-medium text-gray-900 truncate mb-1">
+          <h3 className="text-sm font-semibold text-slate-900 truncate mb-1">
             {book.title}
           </h3>
-          <p className="text-xs text-gray-500 truncate mb-2">{book.author}</p>
+          <p className="text-xs text-slate-500 truncate mb-2">{book.author}</p>
 
           <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-red-500">
+            <span className="text-lg font-bold text-rose-600">
               ¥{book.price.toFixed(2)}
             </span>
             <span
               className={`text-xs px-2 py-0.5 rounded-full ${
                 CONDITION_COLORS[book.condition] ||
-                "bg-gray-100 text-gray-600"
+                "bg-slate-100 text-slate-600"
               }`}
             >
               {book.condition}
@@ -126,7 +126,7 @@ export default function BookCard({
           </div>
 
           {book.courseName && (
-            <p className="text-xs text-gray-400 mt-2 truncate">
+            <p className="text-xs text-slate-400 mt-2 truncate">
               📖 {book.courseName}
             </p>
           )}

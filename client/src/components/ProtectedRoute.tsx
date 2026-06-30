@@ -12,7 +12,7 @@ export default function ProtectedRoute({ children }: Props) {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <p className="text-gray-400 text-sm">加载中...</p>
+        <p className="text-slate-400 text-sm">加载中...</p>
       </div>
     );
   }

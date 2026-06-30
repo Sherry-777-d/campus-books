@@ -130,19 +130,19 @@ export default function Chat() {
   return (
     <div className="max-w-2xl mx-auto h-[calc(100vh-8rem)] flex flex-col">
       {/* 顶部栏 */}
-      <div className="flex items-center gap-3 py-3 border-b border-gray-200 mb-3">
+      <div className="flex items-center gap-3 py-3 border-b border-slate-200 mb-3">
         <Link
           to="/messages"
-          className="text-gray-500 hover:text-gray-700 no-underline text-sm"
+          className="text-slate-500 hover:text-slate-700 no-underline text-sm"
         >
           ← 返回
         </Link>
         {otherUser && (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
+            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
               {otherUser.username.charAt(0).toUpperCase()}
             </div>
-            <span className="text-sm font-medium text-gray-900">
+            <span className="text-sm font-medium text-slate-900">
               {otherUser.username}
             </span>
           </div>
@@ -153,7 +153,7 @@ export default function Chat() {
       <div className="flex-1 overflow-y-auto space-y-3 pb-4">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-400 text-sm">还没有消息，发一条吧 👋</p>
+            <p className="text-slate-400 text-sm">还没有消息，发一条吧 👋</p>
           </div>
         ) : (
           messages.map((msg) => {
@@ -167,8 +167,8 @@ export default function Chat() {
                 <div
                   className={`max-w-[75%] rounded-2xl overflow-hidden ${
                     isMine
-                      ? "bg-blue-600 text-white rounded-br-md"
-                      : "bg-gray-100 text-gray-900 rounded-bl-md"
+                      ? "bg-indigo-600 text-white rounded-br-md"
+                      : "bg-slate-100 text-slate-900 rounded-bl-md"
                   }`}
                 >
                   {/* 图片 */}
@@ -195,7 +195,7 @@ export default function Chat() {
                   {/* 时间 */}
                   <p
                     className={`text-xs mt-0.5 pb-2.5 px-4 ${
-                      isMine ? "text-blue-200" : "text-gray-400"
+                      isMine ? "text-indigo-200" : "text-slate-400"
                     }`}
                   >
                     {formatTime(msg.createdAt)}
@@ -210,7 +210,7 @@ export default function Chat() {
 
       {/* 图片预览栏 */}
       {imagePreview && (
-        <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 flex items-center gap-3">
+        <div className="px-4 py-2 border-t border-slate-100 bg-slate-50 flex items-center gap-3">
           <div className="relative">
             <img
               src={imagePreview}
@@ -219,25 +219,25 @@ export default function Chat() {
             />
             <button
               onClick={clearImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs border-none cursor-pointer"
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-rose-500 text-white rounded-full flex items-center justify-center text-xs border-none cursor-pointer"
             >
               ✕
             </button>
           </div>
-          <span className="text-xs text-gray-500">点击发送图片</span>
+          <span className="text-xs text-slate-500">点击发送图片</span>
         </div>
       )}
 
       {/* 发送区 */}
       <form
         onSubmit={handleSend}
-        className="flex items-end gap-2 py-3 border-t border-gray-200"
+        className="flex items-end gap-2 py-3 border-t border-slate-200"
       >
         {/* 图片按钮 */}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex-shrink-0 w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-lg bg-white hover:bg-gray-50 cursor-pointer transition-colors"
+          className="flex-shrink-0 w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-lg bg-white hover:bg-slate-50 cursor-pointer transition-colors"
         >
           🖼️
         </button>
@@ -254,12 +254,12 @@ export default function Chat() {
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder={imageFile ? "添加文字说明（可选）..." : "输入消息..."}
-          className="flex-1 px-4 py-2.5 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 px-4 py-2.5 border border-slate-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
         />
         <button
           type="submit"
           disabled={(!newMessage.trim() && !imageFile) || sending}
-          className="px-5 py-2.5 bg-blue-600 text-white text-sm rounded-full hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex-shrink-0"
+          className="px-5 py-2.5 bg-indigo-600 text-white text-sm rounded-full hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex-shrink-0"
         >
           {sending ? "发送中" : "发送"}
         </button>
