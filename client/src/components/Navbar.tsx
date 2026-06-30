@@ -1,11 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import api from "../lib/api";
 
 export default function Navbar() {
   const { user, isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnread = useCallback(async () => {
+    try {
+      const res = await api.get("/messages/unread-count");
+      setUnreadCount(res.data.count);
+    } catch { /* ignore */ }
+  }, []);
+
+  // 定期检查未读消息数
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    fetchUnread();
+    const timer = setInterval(fetchUnread, 30000); // 每 30 秒检查一次
+    return () => clearInterval(timer);
+  }, [isLoggedIn, fetchUnread]);
+
+  // 监听「消息已读」事件，立即刷新未读数
+  useEffect(() => {
+    window.addEventListener("messages-read", fetchUnread);
+    return () => window.removeEventListener("messages-read", fetchUnread);
+  }, [fetchUnread]);
 
   const handleLogout = () => {
     logout();
@@ -29,9 +52,25 @@ export default function Navbar() {
             首页
           </Link>
           {isLoggedIn && (
-            <Link to="/publish" className="text-gray-600 hover:text-blue-600 transition-colors no-underline text-sm">
-              发布书籍
-            </Link>
+            <>
+              <Link to="/publish" className="text-gray-600 hover:text-blue-600 transition-colors no-underline text-sm">
+                发布书籍
+              </Link>
+              <Link to="/my-books" className="text-gray-600 hover:text-blue-600 transition-colors no-underline text-sm">
+                📦 我的发布
+              </Link>
+              <Link to="/favorites" className="text-gray-600 hover:text-red-500 transition-colors no-underline text-sm flex items-center gap-1">
+                ❤️ 心愿单
+              </Link>
+              <Link to="/messages" className="text-gray-600 hover:text-blue-600 transition-colors no-underline text-sm relative">
+                💬 消息
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-3 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </Link>
+            </>
           )}
         </div>
 
@@ -75,9 +114,25 @@ export default function Navbar() {
             首页
           </Link>
           {isLoggedIn && (
-            <Link to="/publish" onClick={closeMobile} className="text-gray-700 no-underline text-sm py-1">
-              发布书籍
-            </Link>
+            <>
+              <Link to="/publish" onClick={closeMobile} className="text-gray-700 no-underline text-sm py-1">
+                发布书籍
+              </Link>
+              <Link to="/my-books" onClick={closeMobile} className="text-gray-700 no-underline text-sm py-1">
+                📦 我的发布
+              </Link>
+              <Link to="/favorites" onClick={closeMobile} className="text-gray-700 no-underline text-sm py-1">
+                ❤️ 心愿单
+              </Link>
+              <Link to="/messages" onClick={closeMobile} className="text-gray-700 no-underline text-sm py-1">
+                💬 消息
+                {unreadCount > 0 && (
+                  <span className="ml-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </Link>
+            </>
           )}
           <hr className="border-gray-100" />
           {isLoggedIn ? (

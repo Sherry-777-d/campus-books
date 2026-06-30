@@ -1,9 +1,22 @@
-import { useState, type FormEvent, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, type FormEvent, useRef, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../lib/api";
 import { useToast } from "../context/ToastContext";
 
 const CONDITION_OPTIONS = ["全新", "几乎全新", "有笔记", "有破损"];
+
+const COURSE_OPTIONS = [
+  "高等数学",
+  "大学物理",
+  "线性代数",
+  "概率论",
+  "计算机",
+  "数据结构",
+  "大学英语",
+  "马克思主义原理",
+  "模拟电子技术",
+  "其他",
+];
 
 interface FieldErrors {
   title?: string;
@@ -12,6 +25,8 @@ interface FieldErrors {
 }
 
 export default function PublishBook() {
+  const { id } = useParams<{ id?: string }>();
+  const isEdit = !!id; // 有 id 就是编辑模式，没有就是发布模式
   const navigate = useNavigate();
   const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -20,12 +35,52 @@ export default function PublishBook() {
   const [price, setPrice] = useState("");
   const [condition, setCondition] = useState("全新");
   const [courseName, setCourseName] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState(""); // 下拉框选中的值
+  const [customCourse, setCustomCourse] = useState(""); // 选「其他」时手动输入的内容
   const [description, setDescription] = useState("");
+  const [tradeLocation, setTradeLocation] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]); // 编辑模式下已有的图片
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [loadingBook, setLoadingBook] = useState(isEdit); // 编辑模式下先加载原数据
+
+  // 编辑模式：加载书籍数据
+  useEffect(() => {
+    if (!id) return;
+    setLoadingBook(true);
+    api
+      .get(`/books/${id}`)
+      .then((res) => {
+        const book = res.data.book;
+        setTitle(book.title);
+        setAuthor(book.author);
+        setPrice(String(book.price));
+        setCondition(book.condition);
+        setCourseName(book.courseName || "");
+        setDescription(book.description || "");
+        setTradeLocation(book.tradeLocation || "");
+        // 课程：判断是否在预设列表中
+        const bookCourse = book.courseName || "";
+        if (COURSE_OPTIONS.includes(bookCourse) && bookCourse !== "其他") {
+          setSelectedCourse(bookCourse);
+          setCourseName(bookCourse);
+        } else if (bookCourse) {
+          setSelectedCourse("其他");
+          setCustomCourse(bookCourse);
+          setCourseName(bookCourse);
+        }
+        // 已有图片
+        const images = book.images?.split(",").filter(Boolean) || [];
+        setExistingImages(images);
+      })
+      .catch(() => {
+        setError("加载书籍信息失败");
+      })
+      .finally(() => setLoadingBook(false));
+  }, [id]);
 
   const validate = (): boolean => {
     const errors: FieldErrors = {};
@@ -38,7 +93,8 @@ export default function PublishBook() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
-    if (selectedFiles.length > 5) {
+    const totalImages = existingImages.length + selectedFiles.length;
+    if (totalImages > 5) {
       setError("最多上传 5 张图片");
       return;
     }
@@ -54,6 +110,10 @@ export default function PublishBook() {
     });
   };
 
+  const removeExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
@@ -67,27 +127,63 @@ export default function PublishBook() {
       formData.append("author", author.trim());
       formData.append("price", price);
       formData.append("condition", condition);
-      if (courseName.trim()) formData.append("courseName", courseName.trim());
-      if (description.trim()) formData.append("description", description.trim());
+      const finalCourse = selectedCourse === "其他" ? customCourse.trim() : selectedCourse;
+      if (finalCourse) formData.append("courseName", finalCourse);
+      // 向后兼容：如果 courseName 有值也传（编辑模式手动输入的情况）
+      if (!finalCourse && courseName.trim()) formData.append("courseName", courseName.trim());
+      if (description.trim())
+        formData.append("description", description.trim());
+      if (tradeLocation.trim())
+        formData.append("tradeLocation", tradeLocation.trim());
+
+      // 编辑模式：传递保留的已有图片
+      if (isEdit && existingImages.length > 0) {
+        formData.append("existingImages", existingImages.join(","));
+      }
+
       files.forEach((f) => formData.append("images", f));
 
-      await api.post("/books", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      showToast("发布成功！", "success");
-      navigate("/");
+      if (isEdit) {
+        await api.put(`/books/${id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        showToast("编辑成功！", "success");
+        navigate(`/books/${id}`);
+      } else {
+        await api.post("/books", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        showToast("发布成功！", "success");
+        navigate("/");
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || "发布失败，请稍后再试");
+      setError(err.response?.data?.message || "操作失败，请稍后再试");
     } finally {
       setSubmitting(false);
     }
   };
 
+  // 加载中骨架
+  if (loadingBook) {
+    return (
+      <div className="max-w-lg mx-auto">
+        <div className="h-7 skeleton w-32 mx-auto mb-6" />
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 space-y-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i}>
+              <div className="h-4 skeleton w-12 mb-2" />
+              <div className="h-10 skeleton w-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-lg mx-auto">
       <h1 className="text-2xl font-bold text-center mb-6 text-gray-900">
-        发布二手书
+        {isEdit ? "编辑书籍" : "发布二手书"}
       </h1>
 
       <form
@@ -184,12 +280,50 @@ export default function PublishBook() {
           <label className="block text-sm text-gray-700 mb-1">
             相关课程（选填）
           </label>
+          <select
+            value={selectedCourse}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSelectedCourse(val);
+              if (val === "其他") {
+                setCourseName(customCourse);
+              } else if (val) {
+                setCourseName(val);
+                setCustomCourse("");
+              }
+            }}
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          >
+            <option value="">不选择课程</option>
+            {COURSE_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+          {selectedCourse === "其他" && (
+            <input
+              type="text"
+              value={customCourse}
+              onChange={(e) => {
+                setCustomCourse(e.target.value);
+                setCourseName(e.target.value);
+              }}
+              className="w-full mt-2 px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+              placeholder="请输入课程名称"
+            />
+          )}
+        </div>
+
+        {/* 交易地点 */}
+        <div className="mb-4">
+          <label className="block text-sm text-gray-700 mb-1">
+            交易地点（选填）
+          </label>
           <input
             type="text"
-            value={courseName}
-            onChange={(e) => setCourseName(e.target.value)}
+            value={tradeLocation}
+            onChange={(e) => setTradeLocation(e.target.value)}
             className="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
-            placeholder="例如：高等数学 A"
+            placeholder="例如：图书馆门口、一食堂二楼"
           />
         </div>
 
@@ -207,10 +341,37 @@ export default function PublishBook() {
           />
         </div>
 
+        {/* 已有图片（编辑模式） */}
+        {isEdit && existingImages.length > 0 && (
+          <div className="mb-4">
+            <label className="block text-sm text-gray-700 mb-2">
+              已有图片
+            </label>
+            <div className="flex gap-2 flex-wrap">
+              {existingImages.map((url, i) => (
+                <div key={i} className="relative flex-shrink-0">
+                  <img
+                    src={url}
+                    alt={`已有图片 ${i + 1}`}
+                    className="w-20 h-20 object-cover rounded-md border border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeExistingImage(i)}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center cursor-pointer border-none hover:bg-red-600 transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* 上传图片 */}
         <div className="mb-6">
           <label className="block text-sm text-gray-700 mb-2">
-            上传图片（最多 5 张）
+            {isEdit ? "上传新图片（选填，将替换已有图片）" : "上传图片（最多 5 张）"}
           </label>
           {/* 上传区域 */}
           <div
@@ -229,14 +390,14 @@ export default function PublishBook() {
             onChange={handleFileChange}
             className="hidden"
           />
-          {/* 预览 */}
+          {/* 新文件预览 */}
           {previews.length > 0 && (
             <div className="flex gap-2 mt-3 overflow-x-auto">
               {previews.map((url, i) => (
                 <div key={i} className="relative flex-shrink-0">
                   <img
                     src={url}
-                    alt={`预览 ${i + 1}`}
+                    alt={`新图片预览 ${i + 1}`}
                     className="w-20 h-20 object-cover rounded-md"
                   />
                   <button
@@ -260,7 +421,7 @@ export default function PublishBook() {
           {submitting && (
             <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
           )}
-          {submitting ? "发布中..." : "发布"}
+          {submitting ? "保存中..." : isEdit ? "保存修改" : "发布"}
         </button>
       </form>
     </div>

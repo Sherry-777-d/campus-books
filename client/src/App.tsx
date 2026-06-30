@@ -5,6 +5,10 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import BookDetail from "./pages/BookDetail";
 import PublishBook from "./pages/PublishBook";
+import MyFavorites from "./pages/MyFavorites";
+import MyBooks from "./pages/MyBooks";
+import Messages from "./pages/Messages";
+import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -18,6 +22,14 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/books/:id" element={<BookDetail />} />
+          <Route
+            path="/books/:id/edit"
+            element={
+              <ProtectedRoute>
+                <PublishBook />
+              </ProtectedRoute>
+            }
+          />
 
           {/* 需要登录才能访问的页面 */}
           <Route
@@ -25,6 +37,38 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <PublishBook />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/favorites"
+            element={
+              <ProtectedRoute>
+                <MyFavorites />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-books"
+            element={
+              <ProtectedRoute>
+                <MyBooks />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute>
+                <Messages />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat/:userId"
+            element={
+              <ProtectedRoute>
+                <Chat />
               </ProtectedRoute>
             }
           />

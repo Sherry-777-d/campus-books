@@ -3,6 +3,8 @@ import cors from "cors";
 import path from "path";
 import authRoutes from "./routes/auth";
 import booksRoutes from "./routes/books";
+import favoritesRoutes from "./routes/favorites";
+import messagesRoutes from "./routes/messages";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -21,6 +23,8 @@ app.get("/api/health", (_req, res) => {       // 健康检查
 
 app.use("/api/auth", authRoutes);             // 认证相关
 app.use("/api/books", booksRoutes);           // 书籍相关
+app.use("/api/favorites", favoritesRoutes);    // 收藏相关
+app.use("/api/messages", messagesRoutes);    // 私信相关
 
 // ========== 启动服务器 ==========
 app.listen(PORT, () => {
@@ -35,6 +39,12 @@ app.listen(PORT, () => {
   console.log(`   GET  /api/books/:id        — 书籍详情`);
   console.log(`   POST /api/books            — 发布书籍`);
   console.log(`   PATCH /api/books/:id       — 更新状态`);
+  console.log(`   GET  /api/favorites        — 我的收藏`);
+  console.log(`   POST /api/favorites/:id    — 添加收藏`);
+  console.log(`   DELETE /api/favorites/:id  — 取消收藏`);
+  console.log(`   GET  /api/messages        — 对话列表`);
+  console.log(`   POST /api/messages        — 发送消息`);
+  console.log(`   GET  /api/messages/:id    — 聊天记录`);
 });
 
 export default app;

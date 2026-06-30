@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import type { Book } from "../types";
+import { useAuth } from "../hooks/useAuth";
 import api from "../lib/api";
 
 const CONDITION_LABELS: Record<string, string> = {
@@ -12,6 +13,8 @@ const CONDITION_LABELS: Record<string, string> = {
 
 export default function BookDetail() {
   const { id } = useParams<{ id: string }>();
+  const { user, isLoggedIn } = useAuth();
+  const navigate = useNavigate();
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -138,6 +141,12 @@ export default function BookDetail() {
                 </p>
               )}
 
+              {book.tradeLocation && (
+                <p className="text-sm text-gray-500 mb-4 flex items-center gap-1">
+                  📍 交易地点：{book.tradeLocation}
+                </p>
+              )}
+
               <div className="text-3xl font-bold text-red-500 mb-4">
                 ¥{book.price.toFixed(2)}
               </div>
@@ -161,14 +170,25 @@ export default function BookDetail() {
 
             {/* 卖家信息 */}
             <div className="pt-4 border-t border-gray-100">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
-                  {book.seller.username.charAt(0).toUpperCase()}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
+                    {book.seller.username.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{book.seller.username}</p>
+                    <p className="text-xs text-gray-400">{publishDate} 发布</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{book.seller.username}</p>
-                  <p className="text-xs text-gray-400">{publishDate} 发布</p>
-                </div>
+                {/* 联系卖家按钮（不给自己显示） */}
+                {isLoggedIn && user?.id !== book.seller.id && (
+                  <button
+                    onClick={() => navigate(`/chat/${book.seller.id}`)}
+                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-full hover:bg-blue-700 transition-colors cursor-pointer"
+                  >
+                    💬 联系卖家
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -20,6 +20,23 @@ model User {
   createdAt DateTime @default(now())      // 注册时间
 
   books     Book[]                        // 我发布的书籍（一对多关系）
+  favorites Favorite[]                    // 我收藏的书籍
+
+  sentMessages     Message[] @relation("SentMessages")       // 我发的消息
+  receivedMessages Message[] @relation("ReceivedMessages")   // 我收到的消息
+}
+
+// ========== 收藏表 ==========
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int                         // 收藏者 ID
+  bookId    Int                         // 书籍 ID
+  createdAt DateTime @default(now())    // 收藏时间
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])            // 同一用户不能重复收藏同一本书
 }
 
 // ========== 书籍表 ==========
@@ -32,10 +49,27 @@ model Book {
   courseName  String?                     // 相关课程名（可选）
   images      String                      // 图片路径，多个用逗号分隔
   description String?                     // 补充描述（可选）
+  tradeLocation String?                   // 交易地点（可选）
   status      String   @default("在售")   // 状态：在售 / 已售
 
   sellerId    Int                         // 卖家 ID（外键）
   seller      User    @relation(fields: [sellerId], references: [id])
 
+  favorites   Favorite[]                  // 被哪些用户收藏
+
   createdAt   DateTime @default(now())
+}
+
+// ========== 消息表 ==========
+model Message {
+  id         Int      @id @default(autoincrement())
+  senderId   Int                         // 发送者 ID
+  receiverId Int                         // 接收者 ID
+  bookId     Int?                        // 关联的书籍 ID（可选）
+  content    String                      // 消息内容
+  isRead     Boolean  @default(false)    // 是否已读
+  createdAt  DateTime @default(now())    // 发送时间
+
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
 }

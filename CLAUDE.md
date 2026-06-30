@@ -309,4 +309,204 @@ cd client && npm run dev    # → http://localhost:5173
 
 ---
 
-**待做（部署上线）**
+### 部署上线 (2026-06-30) ⏸️ 暂缓
+
+#### 已完成
+- 代码推送到 GitHub：`https://github.com/Sherry-777-d/campus-books`
+- 前端部署到 Vercel：`https://campus-books-beryl.vercel.app`（空白页，因为后端未部署）
+- 后端代码已切换 PostgreSQL（`server/prisma/schema.prisma`）
+
+#### 遇到的问题
+- Railway 网页从国内加载很慢，无法操作
+- Railway CLI 安装时下载 GitHub 文件超时（ETIMEDOUT）
+- 根本原因：网络访问国外服务不稳定
+
+#### 后续部署计划
+- 等网络好转时，用 Railway 或 Render 部署后端
+- 或者不依赖 Railway，直接在 Vercel 上用 serverless 函数
+- 部署后需修改前端 API 地址指向后端
+
+---
+
+### 功能 6：收藏/心愿单 (2026-06-30) ✅
+
+#### 数据库
+新增 **Favorite 表**：
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | Int (自增) | 主键 |
+| userId | Int | 收藏者 ID（外键 → User） |
+| bookId | Int | 书籍 ID（外键 → Book） |
+| createdAt | DateTime | 收藏时间 |
+
+- `@@unique([userId, bookId])` — 同一用户不能重复收藏同一本书
+- `onDelete: Cascade` — 删除用户或书籍时自动删除收藏记录
+
+#### 后端新增 API
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/favorites | 我的收藏列表（分页） |
+| GET | /api/favorites?bookIds=1,2,3 | 批量检查收藏状态 |
+| GET | /api/favorites?bookId=123 | 检查单本书是否已收藏 |
+| POST | /api/favorites/:bookId | 收藏一本书 |
+| DELETE | /api/favorites/:bookId | 取消收藏 |
+
+#### 前端改动
+- **BookCard**: 右上角加 ❤️ 收藏按钮（空心=未收藏，实心=已收藏），点击不跳转详情页
+- **Navbar**: 导航栏加「❤️ 心愿单」入口（桌面端 + 移动端）
+- **MyFavorites 页面（新建）**: 展示收藏列表，支持分页和取消收藏
+- **App.tsx**: 新增 `/favorites` 路由（ProtectedRoute 保护）
+- **Home 页面**: 加载书籍后批量查询收藏状态
+
+#### 新建文件
+- `server/src/controllers/favorites.ts` — 收藏控制器
+- `server/src/routes/favorites.ts` — 收藏路由
+- `client/src/pages/MyFavorites.tsx` — 心愿单页面
+
+#### 修改文件
+- `server/prisma/schema.prisma` — 新增 Favorite 模型
+- `server/src/index.ts` — 注册收藏路由
+- `client/src/App.tsx` — 新增 /favorites 路由
+- `client/src/components/BookCard.tsx` — 新增收藏按钮
+- `client/src/components/Navbar.tsx` — 新增心愿单入口
+- `client/src/pages/Home.tsx` — 批量查询收藏状态
+
+---
+
+### 交易地点功能 (2026-06-30) ✅
+
+#### 改动
+- **数据库**：Book 表新增 `tradeLocation` 字段（可选）
+- **后端**：createBook 接口接受并存储 `tradeLocation`
+- **发布页面**：新增「交易地点」输入框（选填），自由输入文本
+- **详情页面**：如果有交易地点，显示「📍 交易地点：xxx」
+
+#### 修改文件
+- `server/prisma/schema.prisma` — Book 表新增 tradeLocation
+- `server/src/controllers/books.ts` — createBook 接受 tradeLocation
+- `client/src/types/index.ts` — Book 类型新增 tradeLocation
+- `client/src/pages/PublishBook.tsx` — 新增交易地点输入框
+- `client/src/pages/BookDetail.tsx` — 显示交易地点
+
+---
+
+### 「我发布的书籍」功能 (2026-06-30) ✅
+
+#### 后端
+- 新增 `DELETE /api/books/:id` 接口（只能删除自己发布的书籍，级联删除关联的收藏记录）
+- 已有 `GET /api/books/my` 接口返回当前用户的书籍列表
+
+#### 前端
+- **MyBooks 页面（新建）**：列表展示我发布的书，支持「查看详情」和「下架」
+- 下架前弹出确认对话框，防止误删
+- **Navbar**：桌面端 + 移动端新增「📦 我的发布」导航
+- **App.tsx**：新增 `/my-books` 路由（ProtectedRoute 保护）
+
+#### 新建文件
+- `client/src/pages/MyBooks.tsx`
+
+#### 修改文件
+- `server/src/controllers/books.ts` — 新增 deleteBook 函数
+- `server/src/routes/books.ts` — 注册 DELETE 路由
+- `client/src/App.tsx` — 新增 /my-books 路由
+- `client/src/components/Navbar.tsx` — 新增我的发布入口
+
+---
+
+### 编辑书籍功能 (2026-06-30) ✅
+
+#### 后端
+- 新增 `PUT /api/books/:id` 接口（只能编辑自己发布的书籍）
+- 支持修改所有字段：书名、作者、价格、成色、课程、地点、描述
+- 图片处理：支持保留已有图片 + 上传新图片，自动合并
+
+#### 前端
+- **PublishBook 改造**：同一组件支持发布模式和编辑模式
+  - URL `/publish` → 发布新书
+  - URL `/books/:id/edit` → 编辑已有书籍
+  - 编辑模式下自动加载原数据，表单已填好
+  - 已有图片可逐张删除，新图片可追加
+- **MyBooks**：每本书新增蓝色「编辑」按钮
+- **App.tsx**：新增 `/books/:id/edit` 路由
+
+#### 修改文件
+- `server/src/controllers/books.ts` — 新增 updateBook 函数
+- `server/src/routes/books.ts` — 注册 PUT 路由
+- `client/src/pages/PublishBook.tsx` — 改造支持编辑模式
+- `client/src/pages/MyBooks.tsx` — 新增编辑按钮
+- `client/src/App.tsx` — 新增编辑路由
+
+---
+
+---
+
+### 按课程分类 (2026-06-30) ✅
+
+#### 设计
+- 使用已有的 `courseName` 字段，不加新字段
+- 预设 9 个常见课程 + 「其他」（手动输入）
+- 课程列表：高等数学、大学物理、线性代数、概率论、计算机、数据结构、大学英语、马克思主义原理、模拟电子技术
+
+#### 前端改动
+- **发布/编辑页面**：课程改为下拉选择框，选「其他」时出现手动输入框
+- **首页**：搜索栏下方增加课程分类标签，点击即可筛选，再次点击或点「清除筛选」取消
+- 标签有高亮状态（蓝底白字=已选中）
+
+#### 修改文件
+- `client/src/pages/PublishBook.tsx` — 课程下拉框 + 自定义输入
+- `client/src/pages/Home.tsx` — 课程分类标签
+
+---
+
+---
+
+### 站内私信 (2026-06-30) ✅
+
+#### 数据库
+新增 **Message 表**：
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | Int (自增) | 主键 |
+| senderId | Int | 发送者 ID |
+| receiverId | Int | 接收者 ID |
+| bookId | Int? | 关联书籍（可选） |
+| content | String | 消息内容 |
+| isRead | Boolean | 是否已读（默认 false） |
+| createdAt | DateTime | 发送时间 |
+
+#### 后端新增 API
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/messages | 对话列表（按人分组，显示最后一条） |
+| GET | /api/messages/unread-count | 未读消息数量 |
+| GET | /api/messages/:userId | 和某人的聊天记录（自动标记已读） |
+| POST | /api/messages | 发送消息 |
+
+#### 前端改动
+- **Messages 页面（新建）**：对话列表，类似微信聊天列表，显示最后一条消息预览和时间
+- **Chat 页面（新建）**：聊天界面，右侧蓝色=自己的消息，左侧灰色=对方的消息，底部输入框+发送按钮
+- **Navbar**：新增「💬 消息」入口（桌面+移动），带红色未读数角标，每 30 秒自动更新
+- **BookDetail**：新增「💬 联系卖家」按钮（自己不能联系自己）
+- **App.tsx**：新增 `/messages` 和 `/chat/:userId` 路由
+
+#### 新建文件
+- `server/src/controllers/messages.ts`
+- `server/src/routes/messages.ts`
+- `client/src/pages/Messages.tsx`
+- `client/src/pages/Chat.tsx`
+
+#### 修改文件
+- `server/prisma/schema.prisma` — 新增 Message 模型
+- `server/src/index.ts` — 注册消息路由
+- `client/src/App.tsx` — 新增消息路由
+- `client/src/components/Navbar.tsx` — 新增消息入口+未读角标
+- `client/src/pages/BookDetail.tsx` — 新增联系卖家按钮
+- `client/src/types/index.ts` — 新增 Message、Conversation 类型
+
+---
+
+## 后续功能
+
+| 序号 | 功能 | 说明 |
+|------|------|------|
+| 8 | 书籍评价和打分 | 购买后可评价和打分 |
