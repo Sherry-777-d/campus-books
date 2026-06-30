@@ -34,6 +34,22 @@ app.use("/api/books", booksRoutes);           // 书籍相关
 app.use("/api/favorites", favoritesRoutes);    // 收藏相关
 app.use("/api/messages", messagesRoutes);    // 私信相关
 
+// ========== 生产环境：托管前端静态文件 ==========
+if (process.env.NODE_ENV === "production") {
+  const clientDist = path.join(__dirname, "../../client/dist");
+  if (fs.existsSync(clientDist)) {
+    app.use(express.static(clientDist));
+    // SPA 回退：所有非 API 路由返回 index.html
+    app.get("*", (_req, res) => {
+      res.sendFile(path.join(clientDist, "index.html"));
+    });
+    console.log("📦 已加载前端静态文件:", clientDist);
+  } else {
+    console.log("⚠️ 前端 dist 目录不存在，仅运行 API 服务");
+    console.log("   请先在 client/ 目录运行 npm run build");
+  }
+}
+
 // ========== 启动服务器 ==========
 app.listen(PORT, () => {
   console.log(`🚀 服务器已启动: http://localhost:${PORT}`);
