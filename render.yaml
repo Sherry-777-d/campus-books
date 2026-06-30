@@ -1,0 +1,19 @@
+# Render Blueprint — 基础设施即代码
+# 文档: https://render.com/docs/blueprint-spec
+
+services:
+  # 后端 Web 服务
+  - type: web
+    name: campus-books-api
+    env: node
+    rootDir: server
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+databases:
+  # PostgreSQL 数据库
+  - name: campus-books-db
+    plan: free
