@@ -2,7 +2,7 @@
 
 一个为大学生打造的二手教材交易平台。发布、搜索、收藏你需要的书籍，站内私信联系卖家，轻松完成校内二手书交易。
 
-**🌐 在线访问：[client-vert-eight-10.vercel.app](https://client-vert-eight-10.vercel.app)**
+**🌐 在线访问：[campus-books-app.vercel.app](https://campus-books-app.vercel.app)**
 
 ## ✨ 功能
 

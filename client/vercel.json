@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/uploads/:path*",
+      "destination": "https://campus-books-api.onrender.com/uploads/:path*"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://campus-books-api.onrender.com/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
