@@ -1,0 +1,41 @@
+// Prisma 数据库模型定义
+// 学习: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ========== 用户表 ==========
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique              // 用户名，登录用
+  email     String   @unique              // 邮箱，登录用
+  password  String                        // 哈希加密后的密码
+  avatar    String?                       // 头像 URL（可选）
+  createdAt DateTime @default(now())      // 注册时间
+
+  books     Book[]                        // 我发布的书籍（一对多关系）
+}
+
+// ========== 书籍表 ==========
+model Book {
+  id          Int      @id @default(autoincrement())
+  title       String                      // 书名
+  author      String                      // 作者
+  price       Float                       // 价格（元）
+  condition   String                      // 成色（全新/几乎全新/有笔记/有破损）
+  courseName  String?                     // 相关课程名（可选）
+  images      String                      // 图片路径，多个用逗号分隔
+  description String?                     // 补充描述（可选）
+  status      String   @default("在售")   // 状态：在售 / 已售
+
+  sellerId    Int                         // 卖家 ID（外键）
+  seller      User    @relation(fields: [sellerId], references: [id])
+
+  createdAt   DateTime @default(now())
+}
