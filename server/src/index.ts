@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import path from "path";
+import fs from "fs";
 import authRoutes from "./routes/auth";
 import booksRoutes from "./routes/books";
 import favoritesRoutes from "./routes/favorites";
@@ -12,6 +13,13 @@ const PORT = process.env.PORT || 3001;
 // ========== 中间件 ==========
 app.use(cors());                              // 允许跨域
 app.use(express.json());                      // 解析 JSON 请求体
+
+// 确保 uploads 目录存在（生产环境需要手动创建）
+const uploadsDir = path.join(__dirname, "../uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log("📁 已创建 uploads 目录:", uploadsDir);
+}
 app.use("/uploads", express.static(           // 提供上传图片的静态访问
   path.join(__dirname, "../uploads")
 ));

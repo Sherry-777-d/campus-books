@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import type { Book } from "../types";
 import { useToast } from "../context/ToastContext";
 import api from "../lib/api";
-import BookCard from "../components/BookCard";
 
 /** 确认对话框组件 */
 function ConfirmModal({
