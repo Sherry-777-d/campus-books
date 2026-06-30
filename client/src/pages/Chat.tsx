@@ -18,6 +18,11 @@ export default function Chat() {
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  // 图片相关 state
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const fetchMessages = useCallback(async () => {
     try {
       const res = await api.get(`/messages/${userId}`);
@@ -41,17 +46,50 @@ export default function Chat() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // 选择图片
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    // 生成本地预览 URL
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+  };
+
+  // 清除已选图片
+  const clearImage = () => {
+    setImageFile(null);
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();
     const content = newMessage.trim();
-    if (!content || sending) return;
+    if (!content && !imageFile) return;
+    if (sending) return;
 
     setSending(true);
     try {
-      const res = await api.post("/messages", {
-        receiverId: parseInt(userId!),
-        content,
-      });
+      let res;
+      if (imageFile) {
+        // 有图片时用 FormData
+        const formData = new FormData();
+        formData.append("receiverId", userId!);
+        formData.append("content", content || "");
+        formData.append("image", imageFile);
+        res = await api.post("/messages", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        clearImage();
+      } else {
+        // 纯文字
+        res = await api.post("/messages", {
+          receiverId: parseInt(userId!),
+          content,
+        });
+      }
       setMessages((prev) => [...prev, res.data.message]);
       setNewMessage("");
     } catch (err) {
@@ -120,21 +158,43 @@ export default function Chat() {
         ) : (
           messages.map((msg) => {
             const isMine = msg.senderId === me?.id;
+            const hasImage = !!msg.image;
             return (
               <div
                 key={msg.id}
                 className={`flex ${isMine ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
+                  className={`max-w-[75%] rounded-2xl overflow-hidden ${
                     isMine
                       ? "bg-blue-600 text-white rounded-br-md"
                       : "bg-gray-100 text-gray-900 rounded-bl-md"
                   }`}
                 >
-                  <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                  {/* 图片 */}
+                  {hasImage && (
+                    <a
+                      href={msg.image!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <img
+                        src={msg.image!}
+                        alt="图片"
+                        className="max-w-full max-h-60 object-cover"
+                      />
+                    </a>
+                  )}
+                  {/* 文字 */}
+                  {msg.content && (
+                    <p className="px-4 pt-2.5 pb-1 text-sm whitespace-pre-wrap break-words">
+                      {msg.content}
+                    </p>
+                  )}
+                  {/* 时间 */}
                   <p
-                    className={`text-xs mt-1 ${
+                    className={`text-xs mt-0.5 pb-2.5 px-4 ${
                       isMine ? "text-blue-200" : "text-gray-400"
                     }`}
                   >
@@ -148,22 +208,58 @@ export default function Chat() {
         <div ref={bottomRef} />
       </div>
 
+      {/* 图片预览栏 */}
+      {imagePreview && (
+        <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 flex items-center gap-3">
+          <div className="relative">
+            <img
+              src={imagePreview}
+              alt="预览"
+              className="w-14 h-14 rounded-lg object-cover"
+            />
+            <button
+              onClick={clearImage}
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs border-none cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+          <span className="text-xs text-gray-500">点击发送图片</span>
+        </div>
+      )}
+
       {/* 发送区 */}
       <form
         onSubmit={handleSend}
-        className="flex gap-2 py-3 border-t border-gray-200"
+        className="flex items-end gap-2 py-3 border-t border-gray-200"
       >
+        {/* 图片按钮 */}
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="flex-shrink-0 w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-lg bg-white hover:bg-gray-50 cursor-pointer transition-colors"
+        >
+          🖼️
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+
         <input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="输入消息..."
+          placeholder={imageFile ? "添加文字说明（可选）..." : "输入消息..."}
           className="flex-1 px-4 py-2.5 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         <button
           type="submit"
-          disabled={!newMessage.trim() || sending}
-          className="px-5 py-2.5 bg-blue-600 text-white text-sm rounded-full hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          disabled={(!newMessage.trim() && !imageFile) || sending}
+          className="px-5 py-2.5 bg-blue-600 text-white text-sm rounded-full hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex-shrink-0"
         >
           {sending ? "发送中" : "发送"}
         </button>

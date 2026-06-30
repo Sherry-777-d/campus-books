@@ -103,7 +103,7 @@ export default function Messages() {
                     )}
                     <span className="text-sm text-gray-500 truncate">
                       {isMyMessage ? "我：" : ""}
-                      {conv.lastMessage.content}
+                      {conv.lastMessage.image ? "📷 图片" : conv.lastMessage.content}
                     </span>
                   </div>
                 </div>

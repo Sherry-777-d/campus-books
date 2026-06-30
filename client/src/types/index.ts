@@ -38,6 +38,7 @@ export interface Message {
   receiverId: number;
   bookId: number | null;
   content: string;
+  image: string | null;
   isRead: boolean;
   createdAt: string;
   sender: Pick<User, "id" | "username" | "avatar">;
@@ -49,6 +50,7 @@ export interface Conversation {
   lastMessage: {
     id: number;
     content: string;
+    image: string | null;
     isRead: boolean;
     createdAt: string;
     senderId: number;

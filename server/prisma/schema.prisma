@@ -67,6 +67,7 @@ model Message {
   receiverId Int                         // 接收者 ID
   bookId     Int?                        // 关联的书籍 ID（可选）
   content    String                      // 消息内容
+  image      String?                     // 图片路径（可选）
   isRead     Boolean  @default(false)    // 是否已读
   createdAt  DateTime @default(now())    // 发送时间
 

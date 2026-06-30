@@ -6,6 +6,7 @@ import {
   getUnreadCount,
 } from "../controllers/messages";
 import { authMiddleware } from "../middleware/auth";
+import { upload } from "../middleware/upload";
 
 const router = Router();
 
@@ -21,7 +22,7 @@ router.get("/", getConversations);
 // GET /api/messages/:userId — 和某人的聊天记录
 router.get("/:userId", getChatHistory);
 
-// POST /api/messages — 发送消息
-router.post("/", sendMessage);
+// POST /api/messages — 发送消息（支持可选图片上传）
+router.post("/", upload.single("image"), sendMessage);
 
 export default router;

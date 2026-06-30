@@ -35,6 +35,7 @@ export async function getConversations(
           lastMessage: {
             id: msg.id,
             content: msg.content,
+            image: msg.image,
             isRead: msg.isRead,
             createdAt: msg.createdAt,
             senderId: msg.senderId,
@@ -111,6 +112,7 @@ export async function getChatHistory(
 /**
  * 发送消息
  * POST /api/messages
+ * 支持：纯文字、纯图片、文字+图片
  */
 export async function sendMessage(
   req: Request,
@@ -120,8 +122,19 @@ export async function sendMessage(
     const senderId = (req as any).userId;
     const { receiverId, bookId, content } = req.body;
 
-    if (!receiverId || !content || !content.trim()) {
-      res.status(400).json({ message: "请填写接收者和消息内容" });
+    if (!receiverId) {
+      res.status(400).json({ message: "请指定接收者" });
+      return;
+    }
+
+    // 获取上传的图片
+    const file = req.file as Express.Multer.File | undefined;
+    const imagePath = file ? "/uploads/" + file.filename : null;
+
+    // 必须至少有一项：文字或图片
+    const textContent = content?.trim() || "";
+    if (!textContent && !imagePath) {
+      res.status(400).json({ message: "消息内容不能为空" });
       return;
     }
 
@@ -136,7 +149,8 @@ export async function sendMessage(
         senderId,
         receiverId: parseInt(receiverId),
         bookId: bookId ? parseInt(bookId) : null,
-        content: content.trim(),
+        content: textContent || "📷 图片",
+        image: imagePath,
       },
       include: {
         sender: { select: { id: true, username: true, avatar: true } },
