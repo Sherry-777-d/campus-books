@@ -40,7 +40,7 @@ if (process.env.NODE_ENV === "production") {
   if (fs.existsSync(clientDist)) {
     app.use(express.static(clientDist));
     // SPA 回退：所有非 API 路由返回 index.html
-    app.get("*", (_req, res) => {
+    app.get("/{*path}", (_req, res) => {
       res.sendFile(path.join(clientDist, "index.html"));
     });
     console.log("📦 已加载前端静态文件:", clientDist);
