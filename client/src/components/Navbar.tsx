@@ -44,7 +44,7 @@ export default function Navbar() {
         {/* 左侧：Logo */}
         <Link to="/" className="text-xl font-extrabold no-underline" onClick={closeMobile}>
           <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-            📚 南航 Campus Books
+            📚 NUAA Campus Books
           </span>
         </Link>
 
