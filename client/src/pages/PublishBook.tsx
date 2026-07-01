@@ -116,6 +116,25 @@ export default function PublishBook() {
     setExistingImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  /** 将数组某项移到第一位 */
+  const moveToFront = <T,>(arr: T[], index: number): T[] => {
+    const copy = [...arr];
+    const [item] = copy.splice(index, 1);
+    copy.unshift(item);
+    return copy;
+  };
+
+  /** 设新上传图片为封面 */
+  const setAsCover = (index: number) => {
+    setFiles((prev) => moveToFront(prev, index));
+    setPreviews((prev) => moveToFront(prev, index));
+  };
+
+  /** 设已有图片为封面 */
+  const setExistingAsCover = (index: number) => {
+    setExistingImages((prev) => moveToFront(prev, index));
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
@@ -372,11 +391,27 @@ export default function PublishBook() {
             <div className="flex gap-2 flex-wrap">
               {existingImages.map((url, i) => (
                 <div key={i} className="relative flex-shrink-0">
+                  {/* 封面徽章 */}
+                  {i === 0 && (
+                    <span className="absolute -top-1.5 -left-1.5 z-10 text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-600 text-white shadow-sm">
+                      封面
+                    </span>
+                  )}
                   <img
                     src={url}
                     alt={`已有图片 ${i + 1}`}
                     className="w-20 h-20 object-cover rounded-md border border-slate-200"
                   />
+                  {/* 设为封面 */}
+                  {i !== 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setExistingAsCover(i)}
+                      className="absolute bottom-0 left-0 right-0 text-[10px] py-0.5 bg-black/50 text-white rounded-b-md cursor-pointer border-none hover:bg-black/60 transition-colors"
+                    >
+                      设为封面
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => removeExistingImage(i)}
@@ -417,11 +452,27 @@ export default function PublishBook() {
             <div className="flex gap-2 mt-3 overflow-x-auto">
               {previews.map((url, i) => (
                 <div key={i} className="relative flex-shrink-0">
+                  {/* 封面徽章 */}
+                  {i === 0 && (
+                    <span className="absolute -top-1.5 -left-1.5 z-10 text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-600 text-white shadow-sm">
+                      封面
+                    </span>
+                  )}
                   <img
                     src={url}
                     alt={`新图片预览 ${i + 1}`}
                     className="w-20 h-20 object-cover rounded-md"
                   />
+                  {/* 设为封面 */}
+                  {i !== 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setAsCover(i)}
+                      className="absolute bottom-0 left-0 right-0 text-[10px] py-0.5 bg-black/50 text-white rounded-b-md cursor-pointer border-none hover:bg-black/60 transition-colors"
+                    >
+                      设为封面
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => removeFile(i)}
