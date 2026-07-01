@@ -33,9 +33,9 @@ export async function getBooks(req: Request, res: Response): Promise<void> {
       where.courseName = courseName;
     }
 
-    // 成色筛选（精确匹配）
+    // 成色筛选（多选，逗号分隔）
     if (condition) {
-      where.condition = condition;
+      where.condition = { in: condition.split(",") };
     }
 
     // 价格区间筛选

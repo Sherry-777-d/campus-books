@@ -223,27 +223,36 @@ export default function Home() {
         })}
       </div>
 
-      {/* 成色筛选 */}
+      {/* 成色筛选（多选） */}
       <div className="mb-3 flex flex-wrap gap-2 items-center">
         <span className="text-xs text-slate-400 self-center mr-1">🏷️ 成色：</span>
-        {CONDITION_TAGS.map((tag) => {
-          const isActive = currentCondition === tag;
-          return (
-            <button
-              key={tag}
-              onClick={() =>
-                setSearchParams(buildParams({ condition: isActive ? "" : tag }))
-              }
-              className={`px-3 py-1.5 text-xs rounded-full border transition-colors cursor-pointer ${
-                isActive
-                  ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                  : "bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50"
-              }`}
-            >
-              {tag}
-            </button>
-          );
-        })}
+        {(() => {
+          const selectedConditions = new Set(currentCondition.split(",").filter(Boolean));
+          return CONDITION_TAGS.map((tag) => {
+            const isActive = selectedConditions.has(tag);
+            return (
+              <button
+                key={tag}
+                onClick={() => {
+                  if (isActive) {
+                    selectedConditions.delete(tag);
+                  } else {
+                    selectedConditions.add(tag);
+                  }
+                  const newCondition = [...selectedConditions].join(",");
+                  setSearchParams(buildParams({ condition: newCondition }));
+                }}
+                className={`px-3 py-1.5 text-xs rounded-full border transition-colors cursor-pointer ${
+                  isActive
+                    ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50"
+                }`}
+              >
+                {tag}
+              </button>
+            );
+          });
+        })()}
       </div>
 
       {/* 价格区间 */}
