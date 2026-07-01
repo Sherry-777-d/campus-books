@@ -177,7 +177,7 @@ export default function Home() {
           <div className="relative px-6 py-12 md:py-16 flex flex-col items-center text-center">
             <span className="text-6xl md:text-7xl mb-4 animate-float">📚</span>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-3 tracking-tight">
-              校园二手书
+              南航校园二手书
               <span className="block text-amber-200 mt-1">循环利用，知识传递</span>
             </h1>
             <p className="text-indigo-100 text-base md:text-lg max-w-md mb-6">
