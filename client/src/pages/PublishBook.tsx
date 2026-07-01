@@ -93,7 +93,7 @@ export default function PublishBook() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     // 追加到已有列表（而非替换）
     setFiles((prev) => {
