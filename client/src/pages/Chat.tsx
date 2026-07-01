@@ -150,6 +150,12 @@ export default function Chat() {
         )}
       </div>
 
+      {/* 交易提示 */}
+      <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700 flex items-center gap-2">
+        <span>💡</span>
+        <span>如需付款，可将收款码发送至聊天框进行交易。请自行甄别信息真伪，谨防诈骗。</span>
+      </div>
+
       {/* 消息列表 */}
       <div className="flex-1 overflow-y-auto space-y-3 pb-4">
         {messages.length === 0 ? (
