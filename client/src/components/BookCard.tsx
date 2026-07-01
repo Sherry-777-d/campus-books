@@ -115,21 +115,25 @@ export default function BookCard({
             <span className="text-lg font-bold text-rose-600">
               ¥{book.price.toFixed(2)}
             </span>
-            {(() => {
-              const condList = book.condition.split(",").filter(Boolean);
-              const first = condList[0] || "";
-              return (
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full ${
-                    CONDITION_COLORS[first] ||
-                    "bg-slate-100 text-slate-600"
-                  }`}
-                >
-                  {first}{condList.length > 1 ? ` +${condList.length - 1}` : ""}
-                </span>
-              );
-            })()}
           </div>
+          {/* 成色标签 */}
+          {(() => {
+            const condList = book.condition.split(",").filter(Boolean);
+            return (
+              <div className="flex flex-wrap gap-1 mt-1.5">
+                {condList.map((c) => (
+                  <span
+                    key={c}
+                    className={`text-xs px-1.5 py-0.5 rounded-full ${
+                      CONDITION_COLORS[c] || "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    {c}
+                  </span>
+                ))}
+              </div>
+            );
+          })()}
 
           {book.courseName && (
             <p className="text-xs text-slate-400 mt-2 truncate">
