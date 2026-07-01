@@ -95,13 +95,23 @@ export default function PublishBook() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
-    const totalImages = existingImages.length + selectedFiles.length;
-    if (totalImages > 5) {
-      setError("最多上传 5 张图片");
-      return;
-    }
-    setFiles(selectedFiles);
-    setPreviews(selectedFiles.map((f) => URL.createObjectURL(f)));
+    // 追加到已有列表（而非替换）
+    setFiles((prev) => {
+      const totalImages = existingImages.length + prev.length + selectedFiles.length;
+      if (totalImages > 5) {
+        setError("最多上传 5 张图片");
+        return prev;
+      }
+      setError("");
+      return [...prev, ...selectedFiles];
+    });
+    setPreviews((prev) => {
+      const totalImages = existingImages.length + prev.length + selectedFiles.length;
+      if (totalImages > 5) return prev;
+      return [...prev, ...selectedFiles.map((f) => URL.createObjectURL(f))];
+    });
+    // 清空 input，允许再次选择同一文件
+    e.target.value = "";
   };
 
   const removeFile = (index: number) => {
@@ -428,7 +438,9 @@ export default function PublishBook() {
         {/* 上传图片 */}
         <div className="mb-6">
           <label className="block text-sm text-slate-700 mb-2">
-            {isEdit ? "上传新图片（选填，将替换已有图片）" : "上传图片（最多 5 张）"}
+            {isEdit
+              ? `上传新图片（选填，共 ${existingImages.length + files.length}/5 张）`
+              : `上传图片（可多次点击，共 ${files.length}/5 张）`}
           </label>
           {/* 上传区域 */}
           <div
@@ -436,7 +448,7 @@ export default function PublishBook() {
             className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/50 transition-colors"
           >
             <p className="text-3xl mb-1">📷</p>
-            <p className="text-sm text-slate-500">点击选择图片</p>
+            <p className="text-sm text-slate-500">点击选择图片（可多次点击追加）</p>
             <p className="text-xs text-slate-400 mt-0.5">支持 JPG、PNG，每张不超过 5MB</p>
           </div>
           <input
