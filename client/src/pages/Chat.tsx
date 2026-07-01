@@ -4,6 +4,18 @@ import type { Message } from "../types";
 import { useAuth } from "../hooks/useAuth";
 import api from "../lib/api";
 
+/** 将相对路径（如 /uploads/xxx.jpg）转为完整 URL */
+function getImageUrl(path: string): string {
+  if (!path || path.startsWith("http")) return path;
+  const apiBase = import.meta.env.VITE_API_URL || "";
+  if (apiBase) {
+    // https://campus-books-api.onrender.com/api → https://campus-books-api.onrender.com
+    const origin = apiBase.replace(/\/api\/?$/, "");
+    return origin + path;
+  }
+  return path; // 本地开发：相对路径走 Vite 代理
+}
+
 export default function Chat() {
   const { userId } = useParams<{ userId: string }>();
   const { user: me } = useAuth();
@@ -174,13 +186,13 @@ export default function Chat() {
                   {/* 图片 */}
                   {hasImage && (
                     <a
-                      href={msg.image!}
+                      href={getImageUrl(msg.image!)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block"
                     >
                       <img
-                        src={msg.image!}
+                        src={getImageUrl(msg.image!)}
                         alt="图片"
                         className="max-w-full max-h-60 object-cover"
                       />
