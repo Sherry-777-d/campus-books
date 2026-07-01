@@ -93,15 +93,24 @@ export default function PublishBook() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
-    const totalImages = existingImages.length + selectedFiles.length;
-    if (totalImages > 5) {
-      setError("最多上传 5 张图片");
-      return;
-    }
-    setFiles(selectedFiles);
-    setPreviews(selectedFiles.map((f) => URL.createObjectURL(f)));
+    // 追加到已有列表（而非替换）
+    setFiles((prev) => {
+      const totalImages = existingImages.length + prev.length + selectedFiles.length;
+      if (totalImages > 5) {
+        setError("最多上传 5 张图片");
+        return prev;
+      }
+      setError("");
+      return [...prev, ...selectedFiles];
+    });
+    setPreviews((prev) => {
+      const totalImages = existingImages.length + prev.length + selectedFiles.length;
+      if (totalImages > 5) return prev;
+      return [...prev, ...selectedFiles.map((f) => URL.createObjectURL(f))];
+    });
+    e.target.value = "";
   };
 
   const removeFile = (index: number) => {
