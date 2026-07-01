@@ -38,7 +38,8 @@ export async function getBooks(req: Request, res: Response): Promise<void> {
       const conditionList = condition.split(",");
       where.AND = [
         ...(where.AND || []),
-        { OR: conditionList.map(c => ({ condition: { contains: c } })) },
+        ...conditionList.map(c => ({ condition: { contains: c } })),
+
       ];
     }
 
