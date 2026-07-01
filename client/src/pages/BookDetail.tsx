@@ -153,9 +153,13 @@ export default function BookDetail() {
 
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-sm text-slate-500">成色：</span>
-                <span className="text-sm px-2.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-full font-medium">
-                  {CONDITION_LABELS[book.condition] || book.condition}
-                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {book.condition.split(",").filter(Boolean).map((c) => (
+                    <span key={c} className="text-sm px-2.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-full font-medium">
+                      {CONDITION_LABELS[c] || c}
+                    </span>
+                  ))}
+                </div>
               </div>
 
               {book.description && (

@@ -115,14 +115,20 @@ export default function BookCard({
             <span className="text-lg font-bold text-rose-600">
               ¥{book.price.toFixed(2)}
             </span>
-            <span
-              className={`text-xs px-2 py-0.5 rounded-full ${
-                CONDITION_COLORS[book.condition] ||
-                "bg-slate-100 text-slate-600"
-              }`}
-            >
-              {book.condition}
-            </span>
+            {(() => {
+              const condList = book.condition.split(",").filter(Boolean);
+              const first = condList[0] || "";
+              return (
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full ${
+                    CONDITION_COLORS[first] ||
+                    "bg-slate-100 text-slate-600"
+                  }`}
+                >
+                  {first}{condList.length > 1 ? ` +${condList.length - 1}` : ""}
+                </span>
+              );
+            })()}
           </div>
 
           {book.courseName && (

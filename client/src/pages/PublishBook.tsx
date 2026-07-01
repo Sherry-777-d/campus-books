@@ -22,6 +22,7 @@ interface FieldErrors {
   title?: string;
   author?: string;
   price?: string;
+  condition?: string;
 }
 
 export default function PublishBook() {
@@ -33,7 +34,7 @@ export default function PublishBook() {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [price, setPrice] = useState("");
-  const [condition, setCondition] = useState("全新");
+  const [conditions, setConditions] = useState<string[]>(["全新"]);
   const [courseName, setCourseName] = useState("");
   const [selectedCourse, setSelectedCourse] = useState(""); // 下拉框选中的值
   const [customCourse, setCustomCourse] = useState(""); // 选「其他」时手动输入的内容
@@ -58,7 +59,7 @@ export default function PublishBook() {
         setTitle(book.title);
         setAuthor(book.author);
         setPrice(String(book.price));
-        setCondition(book.condition);
+        setConditions(book.condition?.split(",").filter(Boolean) || ["全新"]);
         setCourseName(book.courseName || "");
         setDescription(book.description || "");
         setTradeLocation(book.tradeLocation || "");
@@ -87,6 +88,7 @@ export default function PublishBook() {
     if (!title.trim()) errors.title = "请输入书名";
     if (!author.trim()) errors.author = "请输入作者";
     if (!price || parseFloat(price) <= 0) errors.price = "请输入有效价格";
+    if (conditions.length === 0) errors.condition = "请至少选择一个成色";
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -126,7 +128,7 @@ export default function PublishBook() {
       formData.append("title", title.trim());
       formData.append("author", author.trim());
       formData.append("price", price);
-      formData.append("condition", condition);
+      formData.append("condition", conditions.join(","));
       const finalCourse = selectedCourse === "其他" ? customCourse.trim() : selectedCourse;
       if (finalCourse) formData.append("courseName", finalCourse);
       // 向后兼容：如果 courseName 有值也传（编辑模式手动输入的情况）
@@ -262,16 +264,36 @@ export default function PublishBook() {
             )}
           </div>
           <div className="flex-1">
-            <label className="block text-sm text-slate-700 mb-1">成色</label>
-            <select
-              value={condition}
-              onChange={(e) => setCondition(e.target.value)}
-              className="w-full px-3 py-2.5 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
-            >
-              {CONDITION_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
-              ))}
-            </select>
+            <label className="block text-sm text-slate-700 mb-1">成色（可多选）</label>
+            <div className="flex flex-wrap gap-1.5">
+              {CONDITION_OPTIONS.map((opt) => {
+                const isActive = conditions.includes(opt);
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => {
+                      if (isActive) {
+                        setConditions((prev) => prev.filter((c) => c !== opt));
+                      } else {
+                        setConditions((prev) => [...prev, opt]);
+                      }
+                      setFieldErrors((p) => ({ ...p, condition: undefined }));
+                    }}
+                    className={`px-3 py-1.5 text-xs rounded-full border transition-colors cursor-pointer ${
+                      isActive
+                        ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                        : "bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+            {fieldErrors.condition && (
+              <p className="text-rose-500 text-xs mt-1">{fieldErrors.condition}</p>
+            )}
           </div>
         </div>
 
