@@ -20,6 +20,8 @@ const COURSE_TAGS = [
   "模拟电子技术",
 ];
 
+const CONDITION_TAGS = ["全新", "几乎全新", "有笔记", "有破损"];
+
 /** 加载骨架屏 */
 function SkeletonGrid() {
   return (
@@ -58,12 +60,47 @@ export default function Home() {
 
   const currentPage = parseInt(searchParams.get("page") || "1");
   const currentSearch = searchParams.get("search") || "";
+  const currentCourse = searchParams.get("course") || "";
+  const currentCondition = searchParams.get("condition") || "";
+  const currentMinPrice = searchParams.get("minPrice") || "";
+  const currentMaxPrice = searchParams.get("maxPrice") || "";
+
+  // 是否有任何筛选条件
+  const hasFilters = !!(currentSearch || currentCourse || currentCondition || currentMinPrice || currentMaxPrice);
+
+  // 构建 URL params 的辅助函数：保留所有筛选，page 默认重置为 1
+  const buildParams = (overrides: Record<string, string>) => {
+    const base: Record<string, string> = {
+      search: currentSearch,
+      course: currentCourse,
+      condition: currentCondition,
+      minPrice: currentMinPrice,
+      maxPrice: currentMaxPrice,
+      page: "1",
+    };
+    const merged = { ...base, ...overrides };
+    // 过滤掉空值
+    const result: Record<string, string> = {};
+    for (const [k, v] of Object.entries(merged)) {
+      if (v) result[k] = v;
+    }
+    // page 为 1 时不显示在 URL 中
+    if (result.page === "1") delete result.page;
+    return result;
+  };
 
   const fetchBooks = useCallback(async () => {
     setLoading(true);
     try {
       const res = await api.get("/books", {
-        params: { page: currentPage, search: currentSearch },
+        params: {
+          page: currentPage,
+          search: currentSearch || undefined,
+          courseName: currentCourse || undefined,
+          condition: currentCondition || undefined,
+          minPrice: currentMinPrice || undefined,
+          maxPrice: currentMaxPrice || undefined,
+        },
       });
       setBooks(res.data.books);
       setPagination(res.data.pagination);
@@ -82,21 +119,26 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, currentSearch, isLoggedIn]);
+  }, [currentPage, currentSearch, currentCourse, currentCondition, currentMinPrice, currentMaxPrice, isLoggedIn]);
 
   useEffect(() => {
     fetchBooks();
   }, [fetchBooks]);
 
   const handleSearch = (keyword: string) => {
-    setSearchParams(keyword ? { search: keyword, page: "1" } : {});
+    setSearchParams(buildParams({ search: keyword }));
   };
 
   const handlePageChange = (page: number) => {
-    const params: Record<string, string> = { page: String(page) };
-    if (currentSearch) params.search = currentSearch;
+    const params = buildParams({ page: String(page) });
+    // 保留 page
     setSearchParams(params);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // 清除所有筛选
+  const handleClearFilters = () => {
+    setSearchParams({});
   };
 
   // 切换收藏
@@ -124,8 +166,8 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero 区域：只在首页无搜索时显示 */}
-      {!currentSearch && (
+      {/* Hero 区域：只在无任何筛选时显示 */}
+      {!hasFilters && (
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 mb-10">
           {/* 装饰性模糊圆 */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4 blur-3xl" />
@@ -159,13 +201,16 @@ export default function Home() {
       </div>
 
       {/* 课程分类标签 */}
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="mb-3 flex flex-wrap gap-2">
+        <span className="text-xs text-slate-400 self-center mr-1">📖 课程：</span>
         {COURSE_TAGS.map((tag) => {
-          const isActive = currentSearch === tag;
+          const isActive = currentCourse === tag;
           return (
             <button
               key={tag}
-              onClick={() => handleSearch(isActive ? "" : tag)}
+              onClick={() =>
+                setSearchParams(buildParams({ course: isActive ? "" : tag }))
+              }
               className={`px-3 py-1.5 text-xs rounded-full border transition-colors cursor-pointer ${
                 isActive
                   ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
@@ -176,21 +221,70 @@ export default function Home() {
             </button>
           );
         })}
-        {currentSearch && (
+      </div>
+
+      {/* 成色筛选 */}
+      <div className="mb-3 flex flex-wrap gap-2 items-center">
+        <span className="text-xs text-slate-400 self-center mr-1">🏷️ 成色：</span>
+        {CONDITION_TAGS.map((tag) => {
+          const isActive = currentCondition === tag;
+          return (
+            <button
+              key={tag}
+              onClick={() =>
+                setSearchParams(buildParams({ condition: isActive ? "" : tag }))
+              }
+              className={`px-3 py-1.5 text-xs rounded-full border transition-colors cursor-pointer ${
+                isActive
+                  ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50"
+              }`}
+            >
+              {tag}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 价格区间 */}
+      <div className="mb-4 flex flex-wrap gap-2 items-center">
+        <span className="text-xs text-slate-400 self-center mr-1">💰 价格：</span>
+        <input
+          type="number"
+          placeholder="最低价"
+          value={currentMinPrice}
+          onChange={(e) =>
+            setSearchParams(buildParams({ minPrice: e.target.value }))
+          }
+          className="w-24 px-3 py-1.5 text-xs border border-slate-200 rounded-lg outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-200 transition-colors"
+        />
+        <span className="text-xs text-slate-400">—</span>
+        <input
+          type="number"
+          placeholder="最高价"
+          value={currentMaxPrice}
+          onChange={(e) =>
+            setSearchParams(buildParams({ maxPrice: e.target.value }))
+          }
+          className="w-24 px-3 py-1.5 text-xs border border-slate-200 rounded-lg outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-200 transition-colors"
+        />
+        {hasFilters && (
           <button
-            onClick={() => handleSearch("")}
-            className="px-3 py-1.5 text-xs rounded-full border border-slate-200 text-slate-400 hover:text-rose-500 hover:border-rose-300 transition-colors cursor-pointer"
+            onClick={handleClearFilters}
+            className="ml-2 px-3 py-1.5 text-xs rounded-full border border-rose-200 text-rose-400 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
           >
-            清除筛选 ✕
+            清除全部 ✕
           </button>
         )}
       </div>
 
-      {currentSearch && (
+      {hasFilters && (
         <p className="text-sm text-slate-500 mb-4">
-          搜索 "{currentSearch}" 结果：共 {pagination.total} 本
+          {currentSearch && <>搜索 "<span className="text-slate-700 font-medium">{currentSearch}</span>"</>}
+          {currentSearch && (currentCourse || currentCondition || currentMinPrice || currentMaxPrice) && " · "}
+          共 {pagination.total} 本
         </p>
-        )}
+      )}
 
       {/* 内容区 */}
       {loading ? (
@@ -199,25 +293,32 @@ export default function Home() {
         <div className="flex flex-col items-center py-16">
           <p className="text-6xl mb-4">📭</p>
           <p className="text-slate-500 text-lg mb-2">
-            {currentSearch ? "没有找到相关书籍" : "还没有人发布书籍"}
+            {hasFilters ? "没有找到匹配的书籍" : "还没有人发布书籍"}
           </p>
           <p className="text-slate-400 text-sm mb-6">
-            {currentSearch ? "试试其他关键词吧" : "成为第一个卖书的人！"}
+            {hasFilters ? "试试调整筛选条件吧" : "成为第一个卖书的人！"}
           </p>
-          {!currentSearch && (
-            isLoggedIn ? (
-              <Link
-                to="/publish"
-                className="px-6 py-2.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors no-underline active:scale-95"
-              >
-                发布第一本书 →
-              </Link>
-            ) : (
+          {hasFilters ? (
+            <button
+              onClick={handleClearFilters}
+              className="px-6 py-2.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer active:scale-95"
+            >
+              清除所有筛选
+            </button>
+          ) : (
+            !isLoggedIn ? (
               <Link
                 to="/register"
                 className="px-6 py-2.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors no-underline active:scale-95"
               >
                 注册并发布 →
+              </Link>
+            ) : (
+              <Link
+                to="/publish"
+                className="px-6 py-2.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors no-underline active:scale-95"
+              >
+                发布第一本书 →
               </Link>
             )
           )}

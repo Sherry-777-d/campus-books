@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import prisma from "../lib/prisma";
 
 /**
- * 获取所有在售书籍（分页 + 搜索）
- * GET /api/books?page=1&search=高等数学
+ * 获取所有在售书籍（分页 + 搜索 + 筛选）
+ * GET /api/books?page=1&search=高等数学&courseName=计算机&condition=全新&minPrice=10&maxPrice=50
  */
 export async function getBooks(req: Request, res: Response): Promise<void> {
   try {
@@ -11,6 +11,10 @@ export async function getBooks(req: Request, res: Response): Promise<void> {
     const limit = 12; // 每页 12 本
     const skip = (page - 1) * limit;
     const search = req.query.search as string | undefined;
+    const courseName = req.query.courseName as string | undefined;
+    const condition = req.query.condition as string | undefined;
+    const minPrice = parseFloat(req.query.minPrice as string) || undefined;
+    const maxPrice = parseFloat(req.query.maxPrice as string) || undefined;
 
     // 构建查询条件
     const where: any = { status: "在售" };
@@ -22,6 +26,23 @@ export async function getBooks(req: Request, res: Response): Promise<void> {
         { courseName: { contains: search } },
         { description: { contains: search } },
       ];
+    }
+
+    // 课程筛选（精确匹配）
+    if (courseName) {
+      where.courseName = courseName;
+    }
+
+    // 成色筛选（精确匹配）
+    if (condition) {
+      where.condition = condition;
+    }
+
+    // 价格区间筛选
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      where.price = {};
+      if (minPrice !== undefined) where.price.gte = minPrice;
+      if (maxPrice !== undefined) where.price.lte = maxPrice;
     }
 
     // 同时查询总数和当前页数据
