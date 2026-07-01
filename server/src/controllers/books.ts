@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma";
+import { uploadToCloudinary } from "../lib/cloudinary";
 
 /**
  * 获取所有在售书籍（分页 + 搜索 + 筛选）
@@ -137,11 +138,15 @@ export async function createBook(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    // 收集上传的图片路径
+    // 上传图片到 Cloudinary
     const files = req.files as Express.Multer.File[] | undefined;
-    const imagePaths = files
-      ? files.map((f) => "/uploads/" + f.filename).join(",")
-      : "";
+    let imagePaths = "";
+    if (files && files.length > 0) {
+      const urls = await Promise.all(
+        files.map((f) => uploadToCloudinary(f, "books"))
+      );
+      imagePaths = urls.join(",");
+    }
 
     const book = await prisma.book.create({
       data: {
@@ -210,12 +215,18 @@ export async function updateBook(
       return;
     }
 
-    // 处理图片：优先使用新上传的图片，其次使用前端传来的保留已有图片
+    // 处理图片：新上传的图片 → Cloudinary，保留的已有图片不变
     const files = req.files as Express.Multer.File[] | undefined;
     const keptImages = req.body.existingImages as string | undefined; // 编辑时前端传来的保留图片
-    const newImagePaths = files && files.length > 0
-      ? files.map((f) => "/uploads/" + f.filename).join(",")
-      : "";
+
+    // 上传新图片到 Cloudinary
+    let newImagePaths = "";
+    if (files && files.length > 0) {
+      const urls = await Promise.all(
+        files.map((f) => uploadToCloudinary(f, "books"))
+      );
+      newImagePaths = urls.join(",");
+    }
 
     // 合并：保留的已有图片 + 新上传的图片
     const parts: string[] = [];

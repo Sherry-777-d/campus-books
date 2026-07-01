@@ -1,18 +1,7 @@
 import multer from "multer";
-import path from "path";
 
-// 配置 multer 存储：图片存到 uploads/ 目录
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, path.join(__dirname, "../../uploads"));
-  },
-  filename: (_req, file, cb) => {
-    // 文件名：时间戳 + 随机数 + 原扩展名（避免重名）
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, uniqueSuffix + ext);
-  },
-});
+// 使用内存存储（文件直接通过 Cloudinary 上传，不落盘）
+const storage = multer.memoryStorage();
 
 // 只允许上传图片
 const fileFilter = (

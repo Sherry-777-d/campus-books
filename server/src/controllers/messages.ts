@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma";
+import { uploadToCloudinary } from "../lib/cloudinary";
 
 /**
  * 获取我的对话列表（按对话人分组，显示最后一条消息）
@@ -127,9 +128,18 @@ export async function sendMessage(
       return;
     }
 
-    // 获取上传的图片
+    // 获取上传的图片并上传到 Cloudinary
     const file = req.file as Express.Multer.File | undefined;
-    const imagePath = file ? "/uploads/" + file.filename : null;
+    let imagePath: string | null = null;
+    if (file) {
+      try {
+        imagePath = await uploadToCloudinary(file, "messages");
+      } catch (uploadErr) {
+        console.error("图片上传到 Cloudinary 失败:", uploadErr);
+        res.status(500).json({ message: "图片上传失败，请稍后再试" });
+        return;
+      }
+    }
 
     // 必须至少有一项：文字或图片
     const textContent = content?.trim() || "";
