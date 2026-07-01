@@ -33,9 +33,13 @@ export async function getBooks(req: Request, res: Response): Promise<void> {
       where.courseName = courseName;
     }
 
-    // 成色筛选（多选，逗号分隔）
+    // 成色筛选（多选，模糊匹配，支持组合成色如"全新,几乎全新"）
     if (condition) {
-      where.condition = { in: condition.split(",") };
+      const conditionList = condition.split(",");
+      where.AND = [
+        ...(where.AND || []),
+        { OR: conditionList.map(c => ({ condition: { contains: c } })) },
+      ];
     }
 
     // 价格区间筛选
