@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { Book } from "../types";
+import { getOptimizedImage } from "../lib/image";
 
 const CONDITION_COLORS: Record<string, string> = {
   "全新": "bg-emerald-100 text-emerald-700",
@@ -70,7 +71,7 @@ export default function BookCard({
         <div className="aspect-[3/4] bg-gradient-to-br from-indigo-100 to-violet-100 overflow-hidden relative">
           {hasImage ? (
             <img
-              src={coverImage}
+              src={getOptimizedImage(coverImage!, 400)}
               alt={book.title}
               className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-300"
               onError={(e) => {

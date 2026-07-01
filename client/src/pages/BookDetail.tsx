@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import type { Book } from "../types";
+import { getOptimizedImage } from "../lib/image";
 import { useAuth } from "../hooks/useAuth";
 import api from "../lib/api";
 
@@ -85,7 +86,7 @@ export default function BookDetail() {
             <div className="aspect-square bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
               {images.length > 0 ? (
                 <img
-                  src={images[currentImageIndex]}
+                  src={getOptimizedImage(images[currentImageIndex], 800)}
                   alt={book.title}
                   className="w-full h-full object-cover"
                 />
@@ -113,7 +114,7 @@ export default function BookDetail() {
                         : "border-slate-200 hover:border-slate-400"
                     }`}
                   >
-                    <img src={img} alt={`图${i + 1}`} className="w-full h-full object-cover" />
+                    <img src={getOptimizedImage(img, 150)} alt={`图${i + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

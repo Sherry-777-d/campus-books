@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import type { Book } from "../types";
 import { useToast } from "../context/ToastContext";
 import api from "../lib/api";
+import { getOptimizedImage } from "../lib/image";
 
 /** 确认对话框组件 */
 function ConfirmModal({
@@ -151,7 +152,7 @@ export default function MyBooks() {
                   {(() => {
                     const cover = book.images?.split(",").filter(Boolean)[0];
                     return cover ? (
-                      <img src={cover} alt={book.title} className="w-full h-full object-cover" />
+                      <img src={getOptimizedImage(cover!, 200)} alt={book.title} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-slate-300">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
