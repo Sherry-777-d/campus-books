@@ -35,6 +35,7 @@ export default function PublishBook() {
   const [author, setAuthor] = useState("");
   const [price, setPrice] = useState("");
   const [conditions, setConditions] = useState<string[]>(["全新"]);
+  const [category, setCategory] = useState("教材");
   const [courseName, setCourseName] = useState("");
   const [selectedCourse, setSelectedCourse] = useState(""); // 下拉框选中的值
   const [customCourse, setCustomCourse] = useState(""); // 选「其他」时手动输入的内容
@@ -60,6 +61,7 @@ export default function PublishBook() {
         setAuthor(book.author);
         setPrice(String(book.price));
         setConditions(book.condition?.split(",").filter(Boolean) || ["全新"]);
+        setCategory(book.category || "教材");
         setCourseName(book.courseName || "");
         setDescription(book.description || "");
         setTradeLocation(book.tradeLocation || "");
@@ -157,6 +159,7 @@ export default function PublishBook() {
       formData.append("title", title.trim());
       formData.append("author", author.trim());
       formData.append("price", price);
+      formData.append("category", category);
       formData.append("condition", conditions.join(","));
       const finalCourse = selectedCourse === "其他" ? customCourse.trim() : selectedCourse;
       if (finalCourse) formData.append("courseName", finalCourse);
@@ -326,7 +329,36 @@ export default function PublishBook() {
           </div>
         </div>
 
-        {/* 课程名 */}
+        {/* 分类 */}
+        <div className="mb-4">
+          <label className="block text-sm text-slate-700 mb-2">分类</label>
+          <div className="flex gap-2">
+            {["教材", "课外书"].map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => {
+                  setCategory(cat);
+                  if (cat === "课外书") {
+                    setSelectedCourse("");
+                    setCustomCourse("");
+                    setCourseName("");
+                  }
+                }}
+                className={`flex-1 py-2 text-sm rounded-lg border transition-colors cursor-pointer ${
+                  category === cat
+                    ? "bg-indigo-600 text-white border-indigo-600"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-indigo-300"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 课程名（仅教材显示） */}
+        {category === "教材" && (
         <div className="mb-4">
           <label className="block text-sm text-slate-700 mb-1">
             相关课程（选填）
@@ -363,6 +395,7 @@ export default function PublishBook() {
             />
           )}
         </div>
+        )}
 
         {/* 交易地点 */}
         <div className="mb-4">

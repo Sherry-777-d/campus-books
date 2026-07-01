@@ -46,6 +46,7 @@ model Book {
   author      String                      // 作者
   price       Float                       // 价格（元）
   condition   String                      // 成色（全新/几乎全新/有笔记/有破损）
+  category    String   @default("教材")   // 分类：教材 / 课外书
   courseName  String?                     // 相关课程名（可选）
   images      String                      // 图片路径，多个用逗号分隔
   description String?                     // 补充描述（可选）

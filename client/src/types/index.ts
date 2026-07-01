@@ -13,6 +13,7 @@ export interface Book {
   title: string;
   author: string;
   price: number;
+  category: string;
   condition: string;
   courseName: string | null;
   images: string;

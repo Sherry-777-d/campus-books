@@ -107,6 +107,14 @@ export default function BookCard({
 
         {/* 信息区 */}
         <div className="p-3">
+          {/* 分类徽章 */}
+          <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded-full mb-1.5 ${
+            book.category === "课外书"
+              ? "bg-orange-100 text-orange-600"
+              : "bg-blue-100 text-blue-600"
+          }`}>
+            {book.category || "教材"}
+          </span>
           <h3 className="text-sm font-semibold text-slate-900 truncate mb-1">
             {book.title}
           </h3>

@@ -14,6 +14,7 @@ export async function getBooks(req: Request, res: Response): Promise<void> {
     const search = req.query.search as string | undefined;
     const courseName = req.query.courseName as string | undefined;
     const condition = req.query.condition as string | undefined;
+    const category = req.query.category as string | undefined;
     const minPrice = parseFloat(req.query.minPrice as string) || undefined;
     const maxPrice = parseFloat(req.query.maxPrice as string) || undefined;
 
@@ -27,6 +28,11 @@ export async function getBooks(req: Request, res: Response): Promise<void> {
         { courseName: { contains: search } },
         { description: { contains: search } },
       ];
+    }
+
+    // 分类筛选
+    if (category) {
+      where.category = category;
     }
 
     // 课程筛选（精确匹配）
@@ -129,7 +135,7 @@ export async function getBookById(req: Request, res: Response): Promise<void> {
 export async function createBook(req: Request, res: Response): Promise<void> {
   try {
     const userId = (req as any).userId;
-    const { title, author, price, condition, courseName, description, tradeLocation } =
+    const { title, author, price, condition, courseName, description, tradeLocation, category } =
       req.body;
 
     // 校验必填字段
@@ -154,7 +160,8 @@ export async function createBook(req: Request, res: Response): Promise<void> {
         author,
         price: parseFloat(price),
         condition,
-        courseName: courseName || null,
+        category: category || "教材",
+        courseName: category === "课外书" ? null : (courseName || null),
         images: imagePaths,
         description: description || null,
         tradeLocation: tradeLocation || null,
@@ -188,7 +195,7 @@ export async function updateBook(
   try {
     const userId = (req as any).userId;
     const id = parseInt(req.params.id as string);
-    const { title, author, price, condition, courseName, description, tradeLocation } =
+    const { title, author, price, condition, courseName, description, tradeLocation, category } =
       req.body;
 
     if (isNaN(id)) {
@@ -241,7 +248,8 @@ export async function updateBook(
         author,
         price: parseFloat(price),
         condition,
-        courseName: courseName || null,
+        category: category || "教材",
+        courseName: category === "课外书" ? null : (courseName || null),
         images: imagePaths,
         description: description || null,
         tradeLocation: tradeLocation || null,

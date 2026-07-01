@@ -62,16 +62,18 @@ export default function Home() {
   const currentSearch = searchParams.get("search") || "";
   const currentCourse = searchParams.get("course") || "";
   const currentCondition = searchParams.get("condition") || "";
+  const currentCategory = searchParams.get("category") || "";
   const currentMinPrice = searchParams.get("minPrice") || "";
   const currentMaxPrice = searchParams.get("maxPrice") || "";
 
   // 是否有任何筛选条件
-  const hasFilters = !!(currentSearch || currentCourse || currentCondition || currentMinPrice || currentMaxPrice);
+  const hasFilters = !!(currentSearch || currentCategory || currentCourse || currentCondition || currentMinPrice || currentMaxPrice);
 
   // 构建 URL params 的辅助函数：保留所有筛选，page 默认重置为 1
   const buildParams = (overrides: Record<string, string>) => {
     const base: Record<string, string> = {
       search: currentSearch,
+      category: currentCategory,
       course: currentCourse,
       condition: currentCondition,
       minPrice: currentMinPrice,
@@ -96,6 +98,7 @@ export default function Home() {
         params: {
           page: currentPage,
           search: currentSearch || undefined,
+          category: currentCategory || undefined,
           courseName: currentCourse || undefined,
           condition: currentCondition || undefined,
           minPrice: currentMinPrice || undefined,
@@ -119,7 +122,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, currentSearch, currentCourse, currentCondition, currentMinPrice, currentMaxPrice, isLoggedIn]);
+  }, [currentPage, currentSearch, currentCategory, currentCourse, currentCondition, currentMinPrice, currentMaxPrice, isLoggedIn]);
 
   useEffect(() => {
     fetchBooks();
@@ -200,7 +203,32 @@ export default function Home() {
         <SearchBar onSearch={handleSearch} initialValue={currentSearch} />
       </div>
 
-      {/* 课程分类标签 */}
+      {/* 分类筛选 */}
+      <div className="mb-3 flex flex-wrap gap-2 items-center">
+        <span className="text-xs text-slate-400 self-center mr-1">📂 分类：</span>
+        {["", "教材", "课外书"].map((cat) => {
+          const label = cat || "全部";
+          const isActive = currentCategory === cat || (!currentCategory && !cat);
+          return (
+            <button
+              key={cat}
+              onClick={() =>
+                setSearchParams(buildParams({ category: cat }))
+              }
+              className={`px-3 py-1.5 text-xs rounded-full border transition-colors cursor-pointer ${
+                isActive
+                  ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50"
+              }`}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 课程分类标签（选课外书时隐藏） */}
+      {currentCategory !== "课外书" && (
       <div className="mb-3 flex flex-wrap gap-2">
         <span className="text-xs text-slate-400 self-center mr-1">📖 课程：</span>
         {COURSE_TAGS.map((tag) => {
@@ -222,6 +250,7 @@ export default function Home() {
           );
         })}
       </div>
+      )}
 
       {/* 成色筛选（多选） */}
       <div className="mb-3 flex flex-wrap gap-2 items-center">

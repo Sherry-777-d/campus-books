@@ -136,6 +136,14 @@ export default function BookDetail() {
               </div>
               <p className="text-sm text-slate-500 mb-4">{book.author}</p>
 
+              <span className={`inline-block text-xs px-2 py-0.5 rounded-full mb-3 ${
+                book.category === "课外书"
+                  ? "bg-orange-100 text-orange-600"
+                  : "bg-blue-100 text-blue-600"
+              }`}>
+                {book.category || "教材"}
+              </span>
+
               {book.courseName && (
                 <p className="text-sm text-slate-500 mb-4 flex items-center gap-1">
                   📖 相关课程：{book.courseName}
