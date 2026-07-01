@@ -33,12 +33,19 @@ export async function getBooks(req: Request, res: Response): Promise<void> {
       where.courseName = courseName;
     }
 
-    // 成色筛选（多选，且逻辑：必须包含所有选中的成色）
+    // 成色筛选（多选，且逻辑，按逗号分段精确匹配）
     if (condition) {
       const conditionList = condition.split(",");
       where.AND = [
         ...(where.AND || []),
-        ...conditionList.map(c => ({ condition: { contains: c } })),
+        ...conditionList.map(c => ({
+          OR: [
+            { condition: c },                              // 等于"全新"
+            { condition: { startsWith: c + "," } },        // 以"全新,"开头
+            { condition: { contains: "," + c + "," } },     // 包含",全新,"
+            { condition: { endsWith: "," + c } },           // 以",全新"结尾
+          ],
+        })),
       ];
     }
 
